@@ -602,7 +602,7 @@ class ChessGame {
     }
     
     return false;
-}
+    }
 
     convertChessNotationToCoords(notation) {
     if (!/^[a-t][1-9]([0-9])?$/.test(notation)) {
@@ -684,7 +684,7 @@ class ChessGame {
     }
     // No piece can attack the king, so it's not in check
     return false;
-}
+    }
 
 
     doMove(from, to, promotion, mycolor) {
@@ -959,11 +959,11 @@ if ((absRowDiff === 1 && absColDiff === 1) && this.board[toCoords.row][toCoords.
     }
     }
 
-convertCoordsToChessNotation(coords) {
+    convertCoordsToChessNotation(coords) {
     const file = String.fromCharCode('a'.charCodeAt(0) + (coords.col - 20));
     const rank = 42 - coords.row; // Adjust rank calculation
     return `${file}${rank}`;
-}
+    }
 
 
 
