@@ -3,7 +3,7 @@ class ChessGame {
     isFinished = false, whoseMove = 0, enPassantArray = null, 
     isAlivePlayers = null, startingPositionsOfPawns = null, 
     endingPositionsOfPawns = null, rightCastleAbilities = null, leftCastleAbilities = null, 
-    pawnDirections = null) {
+    pawnDirections = null, history = "") {
 
         enPassantArray = enPassantArray || Array.from({ length: playerNicks.length }, () => []);
         isAlivePlayers = isAlivePlayers || Array(playerNicks.length).fill(true);
@@ -688,6 +688,7 @@ class ChessGame {
 
 
     doMove(from, to, promotion, mycolor) {
+        this.history += (this.history ? "|" : "") + from + "-" + to;
     // Convert chess notation to board coordinates
     const fromCoords = this.convertChessNotationToCoords(from);
     const toCoords = this.convertChessNotationToCoords(to);
@@ -891,7 +892,7 @@ if (absRowDiff === 2 || absColDiff === 2) {
             return;
         }
         
-        // Check for en passant capture
+// Inside doPawnMove method, in the en passant capture section:
 if ((absRowDiff === 1 && absColDiff === 1) && this.board[toCoords.row][toCoords.col] === 0) {
     for (let playerIndex = 0; playerIndex < this.players.length; playerIndex++) {
         if (playerIndex === mycolor || !this.enPassantArray[playerIndex] || 
@@ -911,13 +912,15 @@ if ((absRowDiff === 1 && absColDiff === 1) && this.board[toCoords.row][toCoords.
             // Remove the captured pawn
             this.board[capturedPawnCoords.row][capturedPawnCoords.col] = 0;
             
-            // Clear the en passant target
-            this.enPassantArray[playerIndex] = [];
+            // Clear the en passant target for both players
+            this.enPassantArray[playerIndex] = [];  // Clear for captured pawn's player
+            this.enPassantArray[mycolor] = [];      // Clear for capturing player
             
             return;
         }
     }
 }
+
 
     }
 

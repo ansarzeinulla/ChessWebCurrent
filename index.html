@@ -42,6 +42,31 @@
         text-align: center;
         margin-bottom: 20px;
     }
+/* Add these styles to your existing CSS */
+.move-history {
+    margin-top: 20px;
+    border-top: 1px solid #ddd;
+    padding-top: 15px;
+}
+
+#history-container {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    background-color: #fff;
+}
+
+#move-list {
+    margin: 0;
+    padding-left: 20px;
+}
+
+#move-list li {
+    margin-bottom: 5px;
+    font-family: monospace;
+}
 
     .game-container {
         display: flex;
@@ -161,6 +186,15 @@
                 <div id="selected-label">Selected Squares:</div>
                 <div id="selected-positions"></div>
             </div>
+
+            <!-- Add this to your side panel, after the selected-squares div -->
+<div class="move-history">
+    <h3>Move History</h3>
+    <div id="history-container">
+        <ol id="move-list"></ol>
+    </div>
+</div>
+
         </div>
     </div>
 
@@ -173,7 +207,48 @@
             const selected = document.querySelector('input[name="promotion"]:checked');
             return selected ? selected.value : 'q'; // Default to queen
         }
+
+function updateMoveHistoryDisplay(game) {
+    const moveList = document.getElementById('move-list');
+    moveList.innerHTML = ''; // Clear existing history
+    
+    if (!game.history) return; // If no history, return
+    
+    // Split the history string by "|"
+    const moves = game.history.split('|')
+        .filter(move => move.trim() !== '')
+        .map(move => move.replace('undefined', '')); // Remove any 'undefined' text
+    
+    // Group moves by pairs (white and black)
+    for (let i = 0; i < moves.length; i += 2) {
+        const moveItem = document.createElement('li');
         
+        // First move (white)
+        moveItem.textContent = moves[i];
+        
+        // Second move (black) if it exists
+        if (i + 1 < moves.length) {
+            moveItem.textContent += ` ${moves[i + 1]}`;
+        }
+        
+        moveList.appendChild(moveItem);
+    }
+    
+    // Scroll to the bottom of the history container
+    const historyContainer = document.getElementById('history-container');
+    if (historyContainer) {
+        historyContainer.scrollTop = historyContainer.scrollHeight;
+    }
+}
+
+
+
+
+
+
+
+
+
         // Function to get the selected board orientation
         function getSelectedOrientation() {
             const selected = document.querySelector('input[name="orientation"]:checked');
@@ -188,7 +263,7 @@
             
             // Display the board initially
             game.displayBoard('normal');
-            
+            updateMoveHistoryDisplay(game);
             // Variables to track selected squares
             let firstSelectedButton = null;
             let firstSelectedPosition = null;
@@ -255,9 +330,10 @@ function setupBoardClickHandlers() {
                 
                 // Check if the move is valid
                 if (game.isValidMove(fromPosition, toPosition, promotion, mycolor)) {
-                    // Execute the move
+    
                     game.doMove(fromPosition, toPosition, promotion, mycolor);
-                    
+                    updateMoveHistoryDisplay(game);
+    
                     // Update the board display
                     updateBoard();
                 } else {
