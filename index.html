@@ -15,7 +15,20 @@
     padding: 5px;
     font-size: 16px;
 }
+/* Styling for selected cell */
+.selected-cell {
+    background-color: rgba(255, 255, 0, 0.5) !important; /* Yellow highlight with transparency */
+    box-shadow: 0 0 5px 2px rgba(0, 0, 255, 0.5); /* Blue glow around the selected cell */
+    border: 2px solid #0066cc !important; /* Blue border */
+    transform: scale(1.05); /* Slightly enlarge the selected cell */
+    transition: all 0.2s ease; /* Smooth transition for the highlight effect */
+}
 
+/* Make sure the button styling doesn't override our highlight */
+#board button {
+    position: relative;
+    transition: all 0.2s ease;
+}
     /* Basic styling */
     body {
         font-family: Arial, sans-serif;
