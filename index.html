@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess Game</title>
+    <style>
+/* Add this to your existing styles */
+.player-index {
+    margin-bottom: 20px;
+}
+
+.player-index input {
+    width: 60px;
+    padding: 5px;
+    font-size: 16px;
+}
+
+    /* Basic styling */
+    body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* Center content horizontally */
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .game-container {
+        display: flex;
+        justify-content: center; /* Center the container */
+        align-items: flex-start; /* Align items to the top */
+        gap: 30px; /* Space between board and side panel */
+        max-width: 1200px;
+        width: 100%;
+    }
+
+    #board {
+        display: grid;
+        gap: 2px;
+        /* Add these properties for centering */
+        transform-origin: center center;
+        margin: auto;
+        width: fit-content;
+        height: fit-content;
+    }
+
+    /* Add a wrapper for the board to maintain its position */
+    .board-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: fit-content;
+        height: fit-content;
+        padding: 20px; /* Add some padding around the board */
+    }
+
+    #side-panel {
+        width: 250px;
+        padding: 20px;
+        background-color: #f5f5f5;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        flex-shrink: 0; /* Prevent side panel from shrinking */
+    }
+
+    /* Rest of your existing styles... */
+</style>
+
+</head>
+<body>
+    <h1>Chess Game</h1>
+    
+    <div class="game-container">
+        <!-- Chess board on the left -->
+        <div class="board-wrapper">
+            <div id="board"></div>
+        </div>
+        
+        <!-- Side panel on the right -->
+        <div id="side-panel">
+            <!-- Board orientation options -->
+                        <!-- Add this before the promotion-options div -->
+            <div class="player-index">
+                <h3>Player Index</h3>
+                <input type="number" id="playerIndex" min="0" max="7" value="0">
+            </div>
+
+            <div class="board-orientation">
+                <h3>Board Orientation</h3>
+                
+                <div class="radio-option">
+                    <input type="radio" id="normal" name="orientation" value="normal" checked>
+                    <label for="normal">Normal</label>
+                </div>
+                
+                <div class="radio-option">
+                    <input type="radio" id="upside" name="orientation" value="upside">
+                    <label for="upside">Upside Down (180°)</label>
+                </div>
+                
+                <div class="radio-option">
+                    <input type="radio" id="right" name="orientation" value="right">
+                    <label for="right">Right (90°)</label>
+                </div>
+                
+                <div class="radio-option">
+                    <input type="radio" id="left" name="orientation" value="left">
+                    <label for="left">Left (-90°)</label>
+                </div>
+            </div>
+            
+            <!-- Promotion piece options -->
+            <div class="promotion-options">
+                <h3>Promotion Piece</h3>
+                
+                <div class="radio-option">
+                    <input type="radio" id="queen" name="promotion" value="q" checked>
+                    <label for="queen">Queen</label>
+                    <img src="pieces/102.png" alt="Queen">
+                </div>
+                
+                <div class="radio-option">
+                    <input type="radio" id="rook" name="promotion" value="r">
+                    <label for="rook">Rook</label>
+                    <img src="pieces/103.png" alt="Rook">
+                </div>
+                
+                <div class="radio-option">
+                    <input type="radio" id="bishop" name="promotion" value="b">
+                    <label for="bishop">Bishop</label>
+                    <img src="pieces/104.png" alt="Bishop">
+                </div>
+                
+                <div class="radio-option">
+                    <input type="radio" id="knight" name="promotion" value="n">
+                    <label for="knight">Knight</label>
+                    <img src="pieces/105.png" alt="Knight">
+                </div>
+            </div>
+            
+            <!-- Selected squares display -->
+            <div id="selected-squares">
+                <div id="selected-label">Selected Squares:</div>
+                <div id="selected-positions"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include scripts as regular script tags -->
+    <script src="chess.js"></script>
+    <script src="2p8x8chess.js"></script>
+    <script>
+        // Function to get the selected promotion piece
+        function getSelectedPromotion() {
+            const selected = document.querySelector('input[name="promotion"]:checked');
+            return selected ? selected.value : 'q'; // Default to queen
+        }
+        
+        // Function to get the selected board orientation
+        function getSelectedOrientation() {
+            const selected = document.querySelector('input[name="orientation"]:checked');
+            return selected ? selected.value : 'normal'; // Default to normal
+        }
+        
+        // Initialize the game
+        document.addEventListener('DOMContentLoaded', () => {
+            // Create a new game between Ansar and Amir
+            const playerNicks = ["Ansar", "Amir"];
+            const game = createGamefromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", playerNicks);
+            
+            // Display the board initially
+            game.displayBoard('normal');
+            
+            // Variables to track selected squares
+            let firstSelectedButton = null;
+            let firstSelectedPosition = null;
+            
+            // Function to update the board display
+            function updateBoard() {
+                const orientation = getSelectedOrientation();
+                game.displayBoard(orientation);
+                setupBoardClickHandlers();
+            }
+            
+            // Add event listeners to orientation radio buttons
+            document.querySelectorAll('input[name="orientation"]').forEach(radio => {
+                radio.addEventListener('change', () => {
+                    updateBoard();
+                });
+            });
+            
+            // Function to set up click handlers for board buttons
+            // Function to set up click handlers for board buttons
+function setupBoardClickHandlers() {
+    const buttons = document.querySelectorAll('#board button');
+    buttons.forEach((button, index) => {
+        // Calculate the position in chess notation (a1, b2, etc.)
+        const row = Math.floor(index / game.boardsize);
+        const col = index % game.boardsize;
+        
+        // Convert to chess notation
+        const file = String.fromCharCode('a'.charCodeAt(0) + col);
+        const rank = game.boardsize - row;
+        const position = `${file}${rank}`;
+        
+        // Store position as data attribute
+        button.dataset.position = position;
+        
+        // Add click handler
+        button.addEventListener('click', () => {
+            // Get the current player index
+            const mycolor = parseInt(document.getElementById('playerIndex').value);
+            
+            // Check if it's this player's turn
+            if (game.whoseMove !== mycolor) {
+                alert("It's not your turn!");
+                return;
+            }
+            
+            if (!firstSelectedButton) {
+                // First click - select this button
+                firstSelectedButton = button;
+                firstSelectedPosition = position;
+                button.classList.add('selected-cell');
+                document.getElementById('selected-positions').textContent = position;
+            } else if (firstSelectedButton === button) {
+                // Clicked the same button again - deselect
+                firstSelectedButton.classList.remove('selected-cell');
+                firstSelectedButton = null;
+                firstSelectedPosition = null;
+                document.getElementById('selected-positions').textContent = '';
+            } else {
+                // Second click on a different button - attempt move
+                const fromPosition = firstSelectedPosition;
+                const toPosition = position;
+                const promotion = getSelectedPromotion();
+                
+                // Check if the move is valid
+                if (game.isValidMove(fromPosition, toPosition, promotion, mycolor)) {
+                    // Execute the move
+                    game.doMove(fromPosition, toPosition, promotion, mycolor);
+                    
+                    // Update the board display
+                    updateBoard();
+                } else {
+                    alert('Invalid move!');
+                }
+                
+                // Reset selection
+                firstSelectedButton.classList.remove('selected-cell');
+                firstSelectedButton = null;
+                firstSelectedPosition = null;
+                document.getElementById('selected-positions').textContent = '';
+            }
+        });
+    });
+}
+
+            
+            // Initial setup of click handlers
+            setupBoardClickHandlers();
+        });
+    </script>
+</body>
+</html>

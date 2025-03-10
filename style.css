@@ -1,0 +1,37 @@
+/* Basic styling */
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin-top: 20px;
+}
+
+#board {
+    display: grid;
+    gap: 2px;
+    margin: 0 auto;
+}
+
+button.cell {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+    border: none;
+    cursor: pointer;
+    background-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+button.cell:focus {
+    outline: none;
+}
+
+button.cell:hover {
+    opacity: 0.8;
+}
+
+button img {
+    max-width: 100%;
+    max-height: 100%;
+}
