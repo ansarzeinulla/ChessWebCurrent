@@ -265,7 +265,6 @@
                     firstSelectedButton.classList.remove('selected-cell');
                     firstSelectedButton = null;
                     firstSelectedPosition = null;
-                    document.getElementById('selected-positions').textContent = '';
                 }
             };
         
@@ -278,10 +277,10 @@
 
                         // Perform the move in the game
                         const promotion = getSelectedPromotion(); // You may want to define the promotion type or get it from the UI
-                        const mycolor = parseInt(document.getElementById('playerIndex').value);
+                        myColor = (myColor)
                         
-                        if (game.isValidMove(fromPosition, toPosition, promotion, mycolor)) {
-                            game.doMove(fromPosition, toPosition, promotion, mycolor);
+                        if (game.isValidMove(fromPosition, toPosition, promotion, (myColor+1)%2)) {
+                            game.doMove(fromPosition, toPosition, promotion, (myColor+1)%2);
 
                             // Update the move history
                             updateMoveHistoryDisplay(game);
