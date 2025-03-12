@@ -113,7 +113,7 @@
         let myColor = 0;
         let opponentColor = 1;
         let randomKey = '';
-        
+        let turnColor = 0;
         // Function to get the selected promotion piece
         const getSelectedPromotion = () => {
             const selected = document.querySelector('input[name="promotion"]:checked');
@@ -249,15 +249,15 @@
                 } else {
                     const promotion = getSelectedPromotion();
                     if (game.isValidMove(firstSelectedPosition, position, promotion, mycolor)) {
-                        game.doMove(firstSelectedPosition, position, promotion, mycolor);
-                        updateMoveHistoryDisplay(game);
+                        //game.doMove(firstSelectedPosition, position, promotion, mycolor);
+                        //updateMoveHistoryDisplay(game);
         
                         const positionsRef = ref(database, `standard/${randomKey}`);
                         update(positionsRef, { fromPosition: firstSelectedPosition, toPosition: position })
                             .then(() => console.log("Positions updated successfully!"))
                             .catch((error) => console.error("Error updating positions: ", error));
         
-                        updateBoard();
+                        //updateBoard();
                     } else {
                         alert('Invalid move!');
                     }
@@ -278,15 +278,15 @@
                         // Perform the move in the game
                         const promotion = getSelectedPromotion(); // You may want to define the promotion type or get it from the UI
                         myColor = (myColor)
-                        
-                        if (game.isValidMove(fromPosition, toPosition, promotion, (myColor+1)%2)) {
-                            game.doMove(fromPosition, toPosition, promotion, (myColor+1)%2);
+                        if (game.isValidMove(fromPosition, toPosition, promotion, turnColor)) {
+                            game.doMove(fromPosition, toPosition, promotion, turnColor);
 
                             // Update the move history
                             updateMoveHistoryDisplay(game);
 
                             // Update the board after the move
                             updateBoard();
+                            turnColor = (turnColor+1)%2;
                         } else {
                             alert('Invalid move detected from the database!');
                         }
