@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess Game</title>
+    <link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+    <h1>Chess Game</h1>
+    
+    <div class="game-container">
+        <!-- Chess board on the left -->
+        <div class="board-wrapper">
+            <div id="board"></div>
+        </div>
+        
+        <!-- Side panel on the right -->
+        <div id="side-panel">
+            <!-- Board orientation options -->
+                        <!-- Add this before the promotion-options div -->
+            <div class="player-index">
+                <h3>Player Index</h3>
+                <input type="number" id="playerIndex" min="0" max="7" value="0">
+            </div>
+
+            <div class="board-orientation">
+                <h3>Board Orientation</h3>
+                
+                <div class="radio-option">
+                    <input type="radio" id="normal" name="orientation" value="normal" checked>
+                    <label for="normal">Normal</label>
+                </div>
+                
+                <div class="radio-option">
+                    <input type="radio" id="upside" name="orientation" value="upside">
+                    <label for="upside">Upside Down</label>
+                </div>
+                
+                <div class="radio-option">
+                    <input type="radio" id="right" name="orientation" value="right">
+                    <label for="right">Right</label>
+                </div>
+                
+                <div class="radio-option">
+                    <input type="radio" id="left" name="orientation" value="left">
+                    <label for="left">Left</label>
+                </div>
+            </div>
+            
+            <!-- Promotion piece options -->
+            <div class="promotion-options">
+                <h3>Promotion Piece</h3>
+                
+                <div class="radio-option">
+                    <input type="radio" id="queen" name="promotion" value="q" checked>
+                    <label for="queen">Queen</label>
+                </div>
+                
+                <div class="radio-option">
+                    <input type="radio" id="rook" name="promotion" value="r">
+                    <label for="rook">Rook</label>
+                </div>
+                
+                <div class="radio-option">
+                    <input type="radio" id="bishop" name="promotion" value="b">
+                    <label for="bishop">Bishop</label>
+                </div>
+                
+                <div class="radio-option">
+                    <input type="radio" id="knight" name="promotion" value="n">
+                    <label for="knight">Knight</label>
+                </div>
+            </div>
+             
+
+            <!-- Add this to your side panel, after the selected-squares div -->
+            <div class="move-history">
+                <h3>Move History</h3>
+                <div id="history-container">
+                    <ol id="move-list"></ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include scripts as regular script tags -->
+    <script src="chess.js"></script>
+    <script src="2p8x8chess.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+        import { getDatabase, ref, get, onValue, update } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-database.js";
+        
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCZFJw1_ig3Ctg6P8wWkX6CL3QiyEtAVZw",
+            authDomain: "shahmat-d555c.firebaseapp.com",
+            databaseURL: "https://shahmat-d555c-default-rtdb.firebaseio.com",
+            projectId: "shahmat-d555c",
+            storageBucket: "shahmat-d555c.firebasestorage.app",
+            messagingSenderId: "1007601901767",
+            appId: "1:1007601901767:web:1465687d739f20c2a0dee2"
+        };
+        
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        
+        // Game variables
+        let myName = "";
+        let opponentName = "";
+        let myColor = 0;
+        let opponentColor = 1;
+        let randomKey = '';
+        
+        // Function to get the selected promotion piece
+        const getSelectedPromotion = () => {
+            const selected = document.querySelector('input[name="promotion"]:checked');
+            return selected ? selected.value : 'q'; // Default to queen
+        };
+
+        const getSelectedOrientation = () => {
+            const selected = document.querySelector('input[name="orientation"]:checked');
+            return selected ? selected.value : 'normal'; // Default to normal
+        };
+        
+        // Update move history display
+        const updateMoveHistoryDisplay = (game) => {
+            const moveList = document.getElementById('move-list');
+            moveList.innerHTML = ''; // Clear existing history
+        
+            if (!game.history) return;
+        
+            const moves = game.history.split('|')
+                .filter(move => move.trim() !== '')
+                .map(move => move.replace('undefined', ''));
+        
+            moves.forEach((move, index) => {
+                const moveItem = document.createElement('li');
+                moveItem.textContent = index % 2 === 0 ? move : ` ${move}`;
+                moveList.appendChild(moveItem);
+            });
+        
+            const historyContainer = document.getElementById('history-container');
+            if (historyContainer) {
+                historyContainer.scrollTop = historyContainer.scrollHeight;
+            }
+        };
+        
+        const fetchPlayerData = async () => {
+            const dataRef = ref(database, `standard/${randomKey}`);
+            console.log("Fetching data for randomKey:", randomKey); // Log the randomKey being used
+            
+            try {
+                const snapshot = await get(dataRef);
+                if (snapshot.exists()) {
+                    const playerData = snapshot.val();
+                    console.log("Player data:", playerData); // Log the fetched data
+
+                    console.log("myColor:", myColor); // Log the myColor value to verify it is 0 or 1
+                    if (myColor === 0) {
+                        // If myColor is 0 (white), assign whiteName to myName
+                        myName = playerData["whiteName"];
+                        opponentName = playerData["blackName"];
+                        console.log("Assigned whiteName to myName:", myName);
+                        console.log("Assigned blackName to opponentName:", opponentName);
+                    } else if (myColor === 1) {
+                        // If myColor is 1 (black), assign blackName to myName
+                        myName = playerData["blackName"];
+                        opponentName = playerData["whiteName"];
+                        console.log("Assigned blackName to myName:", myName);
+                        console.log("Assigned whiteName to opponentName:", opponentName);
+                    } else {
+                        console.log("Invalid myColor value. It should be either 0 or 1.");
+                    }
+                } else {
+                    console.log("No data available for this randomKey.");
+                }
+            } catch (error) {
+                console.error("Error fetching data: ", error);
+            }
+        };
+
+
+        // Initialize the game
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            randomKey = urlParams.get('randomKey');
+            myColor = parseInt(urlParams.get('playerColor'));
+            if (randomKey) {
+                await fetchPlayerData();
+            } else {
+                console.log("No randomKey found in URL. or playerColor");
+            }
+            const playerNicks = myColor === 0 ? [myName, opponentName] : [opponentName, myName];
+            console.log(myName);
+            console.log(opponentName);
+            console.log(playerNicks);
+            const game = createGamefromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", playerNicks);
+        
+            game.displayBoard('normal');
+            updateMoveHistoryDisplay(game);
+        
+            let firstSelectedButton = null;
+            let firstSelectedPosition = null;
+        
+            const updateBoard = () => {
+                const orientation = getSelectedOrientation();
+                game.displayBoard(orientation);
+                setupBoardClickHandlers();
+            };
+        
+            // Event listener for orientation changes
+            document.querySelectorAll('input[name="orientation"]').forEach(radio => {
+                radio.addEventListener('change', updateBoard);
+            });
+        
+            // Set up click handlers for the board
+            const setupBoardClickHandlers = () => {
+                const buttons = document.querySelectorAll('#board button');
+                buttons.forEach((button, index) => {
+                    const row = Math.floor(index / game.boardsize);
+                    const col = index % game.boardsize;
+                    const position = `${String.fromCharCode(97 + col)}${game.boardsize - row}`;
+                    button.dataset.position = position;
+        
+                    button.addEventListener('click', () => handleBoardClick(button, position));
+                });
+            };
+        
+            // Handle board cell click
+            const handleBoardClick = (button, position) => {
+                const mycolor = parseInt(document.getElementById('playerIndex').value);
+                if (game.whoseMove !== mycolor) {
+                    alert("It's not your turn!");
+                    return;
+                }
+        
+                if (!firstSelectedButton) {
+                    firstSelectedButton = button;
+                    firstSelectedPosition = position;
+                    button.classList.add('selected-cell');
+                    
+                } else if (firstSelectedButton === button) {
+                    firstSelectedButton.classList.remove('selected-cell');
+                    firstSelectedButton = null;
+                    firstSelectedPosition = null;
+                } else {
+                    const promotion = getSelectedPromotion();
+                    if (game.isValidMove(firstSelectedPosition, position, promotion, mycolor)) {
+                        game.doMove(firstSelectedPosition, position, promotion, mycolor);
+                        updateMoveHistoryDisplay(game);
+        
+                        const positionsRef = ref(database, `standard/${randomKey}`);
+                        update(positionsRef, { fromPosition: firstSelectedPosition, toPosition: position })
+                            .then(() => console.log("Positions updated successfully!"))
+                            .catch((error) => console.error("Error updating positions: ", error));
+        
+                        updateBoard();
+                    } else {
+                        alert('Invalid move!');
+                    }
+        
+                    firstSelectedButton.classList.remove('selected-cell');
+                    firstSelectedButton = null;
+                    firstSelectedPosition = null;
+                    document.getElementById('selected-positions').textContent = '';
+                }
+            };
+        
+            const waitForDatabaseUpdate = () => {
+                const positionsRef = ref(database, `standard/${randomKey}`);
+                onValue(positionsRef, (snapshot) => {
+                    if (snapshot.exists()) {
+                        const { fromPosition, toPosition } = snapshot.val();
+                        alert(`From Position: ${fromPosition}\nTo Position: ${toPosition}`);
+
+                        // Perform the move in the game
+                        const promotion = getSelectedPromotion(); // You may want to define the promotion type or get it from the UI
+                        const mycolor = parseInt(document.getElementById('playerIndex').value);
+                        
+                        if (game.isValidMove(fromPosition, toPosition, promotion, mycolor)) {
+                            game.doMove(fromPosition, toPosition, promotion, mycolor);
+
+                            // Update the move history
+                            updateMoveHistoryDisplay(game);
+
+                            // Update the board after the move
+                            updateBoard();
+                        } else {
+                            alert('Invalid move detected from the database!');
+                        }
+                    } else {
+                        console.log("No data found in the specified path.");
+                    }
+                });
+            };
+
+        
+            setupBoardClickHandlers();
+            waitForDatabaseUpdate();
+        });
+        </script>
+        
+</body>
+</html>
