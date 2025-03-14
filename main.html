@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Playroom Selection</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    h1, h2 {
+      color: #333;
+    }
+
+    input[type="radio"], input[type="text"] {
+      margin: 10px 0;
+    }
+
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin: 10px 0;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    input[type="text"] {
+      padding: 10px;
+      width: 200px;
+      text-align: center;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    #codeInput::placeholder {
+      color: #999;
+    }
+  </style>
+</head>
+<body>
+  <h1>Choose Play Type</h1>
+  <input type="radio" id="standard" name="playType" value="standard" checked>
+  <label for="standard">Standard</label>
+  <input type="radio" id="another" name="playType" value="another">
+  <label for="another">Another</label>
+  <button onclick="handlePlayType()">Submit</button>
+
+  <h2>Join Waitroom</h2>
+  <input type="text" id="codeInput" placeholder="Enter 6 character code">
+  <button onclick="joinWaitroom()">Join</button>
+
+  <script>
+    function handlePlayType() {
+      const selectedOption = document.querySelector('input[name="playType"]:checked').value;
+
+      if (selectedOption === 'another') {
+        alert('ONLY STANDARD IS ENABLED NOW');
+      } else if (selectedOption === 'standard') {
+        const waitroomKey = generateRandomKey();
+        const playerId = generateRandomKey();
+        window.location.href = `waitroom-standard.html?waitroomkey=${waitroomKey}&playerid=${playerId}&organizer=${true}`;
+      }
+    }
+
+    function generateRandomKey() {
+      const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      let result = '';
+      for (let i = 0; i < 6; i++) {
+        result += characters.charAt(Math.floor(Math.random() * characters.length));
+      }
+      return result;
+    }
+
+    function joinWaitroom() {
+      const waitroomKey = document.getElementById('codeInput').value.trim().toUpperCase();
+      const waitroomKeyPattern = /^[A-Z]{6}$/;
+
+      if (waitroomKeyPattern.test(waitroomKey)) {
+        const playerId = generateRandomKey();
+        window.location.href = `waitroom-standard.html?waitroomkey=${waitroomKey}&playerid=${playerId}&organizer=${false}`;
+      } else {
+        alert('Invalid code! Please enter exactly 6 capital English letters.');
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Waitroom Standard</title>
+  <style>
+    .switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: \"\";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: black;
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
+}
+  </style>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+    import { getDatabase, ref, get, update, onValue } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCZFJw1_ig3Ctg6P8wWkX6CL3QiyEtAVZw",
+      authDomain: "shahmat-d555c.firebaseapp.com",
+      databaseURL: "https://shahmat-d555c-default-rtdb.firebaseio.com",
+      projectId: "shahmat-d555c",
+      storageBucket: "shahmat-d555c.firebasestorage.app",
+      messagingSenderId: "1007601901767",
+      appId: "1:1007601901767:web:1465687d739f20c2a0dee2"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const waitroomKey = urlParams.get('waitroomkey');
+    const playerId = urlParams.get('playerid');
+    const isOrganizer = urlParams.get('organizer');
+    var playerColor = 0;
+    if (!waitroomKey || !playerId || !isOrganizer) {
+      console.log(waitroomKey, playerId, isOrganizer);
+      window.location.href = 'error.html';
+    }
+    const roomRef = ref(database, `/standard/${waitroomKey}`);
+    get(roomRef).then(snapshot => {
+      const data = snapshot.val();
+
+      if (!data) {
+        if (isOrganizer === 'true') {
+            update(roomRef, { firstId: playerId });
+        } else {
+          console.log('Your are organizer');
+          window.location.href = 'error.html';
+        }
+      } else {
+        if (isOrganizer === 'true') {
+          console.log('Your are not organizer');
+          window.location.href = 'error.html';
+        }
+        else{
+            const attributes = Object.keys(data);
+
+            if (attributes.length === 1) {
+            update(roomRef, { secondId: playerId });
+            } else {
+              console.log('wtf');
+            window.location.href = 'error.html';
+            }
+        }
+      }
+    });
+
+    onValue(roomRef, snapshot => {
+      const data = snapshot.val();
+      const attributes = Object.keys(data || {});
+
+      if (attributes.length === 2) {
+        document.getElementById('formSection').style.display = 'block';
+      }
+      if (attributes.length === 4) {
+        alert('Both players have joined the room. Redirecting to the game page.');
+        window.location.href = `standard.html?randomKey=${waitroomKey}&playerColor=${playerColor}`
+      }
+    });
+
+    window.pushData = async function() {
+      const playerName = document.getElementById('playerName').value;
+      const colorChoice = document.getElementById('colorSwitch').checked ? 'white' : 'black';
+      const colorKey = colorChoice === 'black' ? 'whiteName' : 'blackName';
+
+      if (playerName.length < 3 || playerName.length > 25) {
+        alert('Invalid name length');
+        return;
+      }
+      if (colorChoice === 'black') {
+        playerColor = 1;
+      } else {
+        playerColor = 0;
+      }
+
+      const snapshot = await get(roomRef);
+      const data = snapshot.val();
+
+      if (data && data[colorKey]) {
+        alert("The color is chosen by your opponent. Choose another color.");
+        return;
+      }
+
+      const updates = {};
+      updates[colorKey] = playerName;
+      update(roomRef, updates);
+    }
+
+    document.getElementById('colorSwitch').addEventListener('change', function() {
+      const colorText = document.getElementById('colorText');
+      if (this.checked) {
+        colorText.textContent = 'Black';
+      } else {
+        colorText.textContent = 'White';
+      }
+    });
+  </script>
+</head>
+<body>
+  <h1>Waitroom Standard</h1>
+  <div id="formSection" style="display: none;">
+    <input type="text" id="playerName" placeholder="Enter your name" minlength="3" maxlength="25">
+    <label class="switch">
+        <input type="checkbox" id="colorSwitch">
+        <span class="slider"></span>
+    </label>
+    <span id="colorText">White</span>
+    <button onclick="pushData()">Push Data</button>
+  </div>
+</body>
+</html>
