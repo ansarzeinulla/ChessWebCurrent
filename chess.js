@@ -722,6 +722,8 @@ class ChessGame {
     //console.log("after do king coord", this.kingCoords)
     // Update whose move it is
     this.whoseMove = (this.whoseMove + 1) % this.players.length;
+    this.isSomeoneMated();
+    this.isSomeonePated();
     }
 
     doRegularMove(fromCoords, toCoords) {
@@ -965,8 +967,50 @@ if ((absRowDiff === 1 && absColDiff === 1) && this.board[toCoords.row][toCoords.
     return `${file}${rank}`;
     }
 
-    
+    generateValidMoves(playerColor) {
+    const validMoves = [];
+    for (coord1 = 'a'; coord1 < 'a'+this.boardsize; coord1++) {
+        for(coord2 = 1; coord2 < this.boardsize; coord2++) {
+            for (coord3 = 'a'; coord3 < 'a'+this.boardsize; coord3++) {
+                for(coord4 = 1; coord4 < this.boardsize; coord4++) {
+                    const from = coord1 + coord2;
+                    const to = coord3 + coord4;
+                    if (this.isValidMove(from, to, playerColor)) {
+                        validMoves.push({from, to});
+                    }
+                }
+            }
+        }
+    }
+    return validMoves;
+    }
 
+    isSomeonePated(){
+        for (let playerInd = 0; playerInd < this.players.length; playerInd++) {
+            if (this.isAlivePlayers[playerInd]) {
+                thisPlayersMoves = this.generateValidMoves(playerInd);
+                if (thisPlayersMoves.length = 0) {
+                    if (this.isCheckForMe(playerInd, this.kingCoords[playerInd], this.board) == false) {
+                        this.isFinished = true;
+                        true;
+                    }
+                }
+            }
+        }
+    }
+
+    isSomeoneMated(){
+        for (let playerInd = 0; playerInd < this.players.length; playerInd++) {
+            if (this.isAlivePlayers[playerInd]) {
+                thisPlayersMoves = this.generateValidMoves(playerInd);
+                if (thisPlayersMoves.length = 0) {
+                    if (this.isCheckForMe(playerInd, this.kingCoords[playerInd], this.board)) {
+                        this.isAlivePlayers[playerInd] = false;
+                    }
+                }
+            }
+        }
+    }
 }
 
 

@@ -110,6 +110,7 @@
         let randomKey = '';
         let turnColor = 0;
         let myPlayerRandomKey = '';
+        let isGameFinished = false;
         // Function to get the selected promotion piece
         const getSelectedPromotion = () => {
             const selected = document.querySelector('input[name="promotion"]:checked');
@@ -121,7 +122,6 @@
             return selected ? selected.value : 'normal'; // Default to normal
         };
         
-        // Update move history display
         const updateMoveHistoryDisplay = (game) => {
             const moveList = document.getElementById('move-list');
             moveList.innerHTML = ''; // Clear existing history
@@ -199,7 +199,8 @@
             if (randomKey) {
                 await fetchPlayerData();
             } else {
-                console.log("No randomKey found in URL. or playerColor");
+                console.log("No randomKey found in URL. or playerRandomKey");
+                window.location.href = 'error.html';
             }
             const playerNicks = myColor === 0 ? [myName, opponentName] : [opponentName, myName];
             console.log(myName);
@@ -243,7 +244,6 @@
                     alert("It's not your turn!");
                     return;
                 }
-        
                 if (!firstSelectedButton) {
                     firstSelectedButton = button;
                     firstSelectedPosition = position;
@@ -260,6 +260,7 @@
                         //updateMoveHistoryDisplay(game);
         
                         const positionsRef = ref(database, `standard/${randomKey}`);
+                        
                         update(positionsRef, { fromPosition: firstSelectedPosition, toPosition: position })
                             .then(() => console.log("Positions updated successfully!"))
                             .catch((error) => console.error("Error updating positions: ", error));
@@ -279,19 +280,25 @@
                 const positionsRef = ref(database, `standard/${randomKey}`);
                 onValue(positionsRef, (snapshot) => {
                     if (snapshot.exists()) {
+                        isGameFinished = snapshot.val().isGameFinished;
+                        if (isGameFinished) {
+                            alert("Game is finished!");
+                            return;
+                        }
                         const { fromPosition, toPosition } = snapshot.val();
-                        alert(`From Position: ${fromPosition}\nTo Position: ${toPosition}`);
+                        //alert(`From Position: ${fromPosition}\nTo Position: ${toPosition}`);
 
                         // Perform the move in the game
                         const promotion = getSelectedPromotion(); // You may want to define the promotion type or get it from the UI
                         myColor = (myColor)
                         if (game.isValidMove(fromPosition, toPosition, promotion, turnColor)) {
                             game.doMove(fromPosition, toPosition, promotion, turnColor);
-
-                            // Update the move history
+                            if(game.isGameFinished){
+                                update(positionsRef, { isGameFinished: true })
+                                .then(() => console.log("Game is finished!"))
+                                .catch((error) => console.error("Error updating game status: ", error));
+                            }
                             updateMoveHistoryDisplay(game);
-
-                            // Update the board after the move
                             updateBoard();
                             turnColor = (turnColor+1)%2;
                         } else {
