@@ -79,7 +79,7 @@
             <div class="move-history">
                 <h3>Move History</h3>
                 <div id="history-container">
-                    <ol id="move-list"></ol>
+                    <div id="move-list"></div>
                 </div>
             </div>
         </div>
@@ -127,26 +127,29 @@
         
         // Update move history display
         const updateMoveHistoryDisplay = (game) => {
-            const moveList = document.getElementById('move-list');
-            moveList.innerHTML = ''; // Clear existing history
-        
-            if (!game.history) return;
-        
-            const moves = game.history.split('|')
-                .filter(move => move.trim() !== '')
-                .map(move => move.replace('undefined', ''));
-        
-            moves.forEach((move, index) => {
-                const moveItem = document.createElement('li');
-                moveItem.textContent = index % 2 === 0 ? move : ` ${move}`;
-                moveList.appendChild(moveItem);
-            });
-        
-            const historyContainer = document.getElementById('history-container');
-            if (historyContainer) {
-                historyContainer.scrollTop = historyContainer.scrollHeight;
-            }
-        };
+    const moveList = document.getElementById('move-list');
+    moveList.innerHTML = ''; // Clear existing history
+
+    if (!game.history) return;
+
+    const moves = game.history.split('|')
+        .filter(move => move.trim() !== '')
+        .map(move => move.replace('undefined', ''));
+
+    for (let i = 0; i < moves.length; i += 2) {
+        const movePair = document.createElement('div');
+        const whiteMove = moves[i] || '';
+        const blackMove = moves[i + 1] || '';
+
+        movePair.textContent = `${(i / 2) + 1}. ${whiteMove} ${blackMove}`;
+        moveList.appendChild(movePair);
+    }
+
+    const historyContainer = document.getElementById('history-container');
+    if (historyContainer) {
+        historyContainer.scrollTop = historyContainer.scrollHeight;
+    }
+};
         
         const fetchPlayerData = async () => {
             const dataRef = ref(database, `standard/${randomKey}`);
