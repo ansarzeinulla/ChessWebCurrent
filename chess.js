@@ -965,7 +965,7 @@ if ((absRowDiff === 1 && absColDiff === 1) && this.board[toCoords.row][toCoords.
     return `${file}${rank}`;
     }
 
-
+    
 
 }
 

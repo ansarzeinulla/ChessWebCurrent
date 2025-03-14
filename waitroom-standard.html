@@ -71,6 +71,8 @@ input:checked + .slider:before {
     const waitroomKey = urlParams.get('waitroomkey');
     const playerId = urlParams.get('playerid');
     const isOrganizer = urlParams.get('organizer');
+    const playerRandomKey = generateRandomKey();
+    console.log(playerRandomKey);
     var playerColor = 0;
     if (!waitroomKey || !playerId || !isOrganizer) {
       console.log(waitroomKey, playerId, isOrganizer);
@@ -112,9 +114,9 @@ input:checked + .slider:before {
       if (attributes.length === 2) {
         document.getElementById('formSection').style.display = 'block';
       }
-      if (attributes.length === 4) {
+      if (attributes.length === 6) {
         alert('Both players have joined the room. Redirecting to the game page.');
-        window.location.href = `standard.html?randomKey=${waitroomKey}&playerColor=${playerColor}`
+        window.location.href = `standard.html?randomKey=${waitroomKey}&playerRandomKey=${playerRandomKey}`
       }
     });
 
@@ -143,6 +145,11 @@ input:checked + .slider:before {
 
       const updates = {};
       updates[colorKey] = playerName;
+      if (colorChoice === 'white') {
+        updates['blackPlayerRandomKey']=playerRandomKey;
+      } else {
+        updates['whitePlayerRandomKey']=playerRandomKey;
+      }
       update(roomRef, updates);
     }
 
@@ -154,6 +161,15 @@ input:checked + .slider:before {
         colorText.textContent = 'White';
       }
     });
+
+    function generateRandomKey() {
+      const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      let result = '';
+      for (let i = 0; i < 6; i++) {
+        result += characters.charAt(Math.floor(Math.random() * characters.length));
+      }
+      return result;
+    }
   </script>
 </head>
 <body>
