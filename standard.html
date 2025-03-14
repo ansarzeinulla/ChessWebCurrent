@@ -19,6 +19,7 @@
         <!-- Side panel on the right -->
         <div id="side-panel">
 
+
             <div class="board-orientation">
                 <h3>Board Orientation</h3>
                 
@@ -163,6 +164,7 @@
                     } else {
                         console.log("Invalid playerRandomKey value. It should match either whiteRandomKey or blackRandomKey.");
                         console.log(myPlayerRandomKey);
+                        window.location.href = 'error.html';
                     }
                     console.log("myColor:", myColor); // Log the myColor value to verify it is 0 or 1
                     if (myColor === 0) {
