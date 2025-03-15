@@ -111,10 +111,10 @@ input:checked + .slider:before {
       const data = snapshot.val();
       const attributes = Object.keys(data || {});
 
-      if (attributes.length === 2) {
+      if (attributes.length >= 2) {
         document.getElementById('formSection').style.display = 'block';
       }
-      if (attributes.length === 6) {
+      if (attributes.length >= 6) {
         alert('Both players have joined the room. Redirecting to the game page.');
         window.location.href = `standard.html?randomKey=${waitroomKey}&playerRandomKey=${playerRandomKey}`
       }

@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Chess Game</h1>
     <div class="game-container">
         <div class="board-wrapper">
             <div id="board"></div>
@@ -62,109 +61,40 @@
         </div>
     </div>
 
-    <!-- Include scripts as regular script tags -->
     <script src="chess.js"></script>
     <script src="2p8x8chess.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
         import { getDatabase, ref, get, onValue, update } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-database.js";
-        const firebaseConfig = {
-            apiKey: "AIzaSyCZFJw1_ig3Ctg6P8wWkX6CL3QiyEtAVZw",
-            authDomain: "shahmat-d555c.firebaseapp.com",
-            databaseURL: "https://shahmat-d555c-default-rtdb.firebaseio.com",
-            projectId: "shahmat-d555c",
-            storageBucket: "shahmat-d555c.firebasestorage.app",
-            messagingSenderId: "1007601901767",
-            appId: "1:1007601901767:web:1465687d739f20c2a0dee2"
-        };
-        const app = initializeApp(firebaseConfig);
-        const database = getDatabase(app);
-        
+        import {database} from './settings.js';
+        import {updateMoveHistoryDisplay, getSelectedPromotion, getSelectedOrientation, displayBoard} from './settings.js';
         // Game variables
-        let myName = "";
-        let opponentName = "";
         let myColor = 0;
-        let opponentColor = 1;
+        let playerNicks = [];
         let randomKey = '';
         let turnColor = 0;
         let myPlayerRandomKey = '';
         let isGameFinished = false;
-        // Function to get the selected promotion piece
-        const getSelectedPromotion = () => {
-            const selected = document.querySelector('input[name="promotion"]:checked');
-            return selected ? selected.value : 'q'; // Default to queen
-        };
-
-        const getSelectedOrientation = () => {
-            const selected = document.querySelector('input[name="orientation"]:checked');
-            return selected ? selected.value : 'normal'; // Default to normal
-        };
-        
-        const updateMoveHistoryDisplay = (game) => {
-            const moveList = document.getElementById('move-list');
-            moveList.innerHTML = ''; // Clear existing history
-
-            if (!game.history) return;
-
-            const moves = game.history.split('|')
-                .filter(move => move.trim() !== '')
-                .map(move => move.replace('undefined', ''));
-
-            for (let i = 0; i < moves.length; i += 2) {
-                const movePair = document.createElement('div');
-                const whiteMove = moves[i] || '';
-                const blackMove = moves[i + 1] || '';
-
-                movePair.textContent = `${(i / 2) + 1}. ${whiteMove} ${blackMove}`;
-                moveList.appendChild(movePair);
-            }
-
-            const historyContainer = document.getElementById('history-container');
-            if (historyContainer) {
-                historyContainer.scrollTop = historyContainer.scrollHeight;
-            }
-        };
-        
+        const gameMode = 'standard';
         const fetchPlayerData = async () => {
-            const dataRef = ref(database, `standard/${randomKey}`);
-            
-            console.log("Fetching data for randomKey:", randomKey); // Log the randomKey being used
-            
+            const dataRef = ref(database, `${gameMode}/${randomKey}`);
             try {
                 const snapshot = await get(dataRef);
                 if (snapshot.exists()) {
                     const playerData = snapshot.val();
-                    console.log("Player data:", playerData); // Log the fetched data
                     if (playerData["whitePlayerRandomKey"] === myPlayerRandomKey) {
                         myColor = 0;
                     } else if (playerData["blackPlayerRandomKey"] === myPlayerRandomKey) {
                         myColor = 1;
                     } else {
-                        console.log("Invalid playerRandomKey value. It should match either whiteRandomKey or blackRandomKey.");
-                        console.log(myPlayerRandomKey);
-                        window.location.href = 'error.html';
+                        window.location.href = `error.html?msg=${encodeURIComponent("Invalid playerRandomKey value. Your PlayerRandomKey is: ", myPlayerRandomKey)}`;
                     }
-                    console.log("myColor:", myColor); // Log the myColor value to verify it is 0 or 1
-                    if (myColor === 0) {
-                        // If myColor is 0 (white), assign whiteName to myName
-                        myName = playerData["whiteName"];
-                        opponentName = playerData["blackName"];
-                        console.log("Assigned whiteName to myName:", myName);
-                        console.log("Assigned blackName to opponentName:", opponentName);
-                    } else if (myColor === 1) {
-                        // If myColor is 1 (black), assign blackName to myName
-                        myName = playerData["blackName"];
-                        opponentName = playerData["whiteName"];
-                        console.log("Assigned blackName to myName:", myName);
-                        console.log("Assigned whiteName to opponentName:", opponentName);
-                    } else {
-                        console.log("Invalid myColor value. It should be either 0 or 1.");
-                    }
+                    playerNicks = [playerData["whiteName"], playerData["blackName"]];
                 } else {
-                    console.log("No data available for this randomKey.");
+                    window.location.href = `error.html?msg=${encodeURIComponent("No data is available for this GameRandomKey ", randomKey)}`;
                 }
             } catch (error) {
-                console.error("Error fetching data: ", error);
+                window.location.href = `error.html?msg=${encodeURIComponent("Error fetching data from Firebase: ", error)}`;
             }
         };
 
@@ -174,34 +104,26 @@
             const urlParams = new URLSearchParams(window.location.search);
             randomKey = urlParams.get('randomKey');
             myPlayerRandomKey = urlParams.get('playerRandomKey');
-            if (randomKey) {
+            if (randomKey && myPlayerRandomKey) {
                 await fetchPlayerData();
             } else {
-                console.log("No randomKey found in URL. or playerRandomKey");
-                window.location.href = 'error.html';
+                window.location.href = `error.html?msg=${encodeURIComponent("No GameRandomKey or PlayerRandomKey in the URL.")}`;
             }
-            const playerNicks = myColor === 0 ? [myName, opponentName] : [opponentName, myName];
-            console.log(myName);
-            console.log(opponentName);
-            console.log(playerNicks);
             const game = createGamefromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", playerNicks);
         
-            game.displayBoard('normal');
+            game.displayBoard('normal', game);
             updateMoveHistoryDisplay(game);
         
             let firstSelectedButton = null;
             let firstSelectedPosition = null;
         
+            //Updating the Board Orientation
+            document.querySelectorAll('input[name="orientation"]').forEach(radio => {radio.addEventListener('change', updateBoard);});
             const updateBoard = () => {
                 const orientation = getSelectedOrientation();
-                game.displayBoard(orientation);
+                game.displayBoard(orientation, game);
                 setupBoardClickHandlers();
             };
-        
-            // Event listener for orientation changes
-            document.querySelectorAll('input[name="orientation"]').forEach(radio => {
-                radio.addEventListener('change', updateBoard);
-            });
         
             // Set up click handlers for the board
             const setupBoardClickHandlers = () => {

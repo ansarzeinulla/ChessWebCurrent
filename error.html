@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error Page</title>
+</head>
+<body>
+    <h1>You are in Error page</h1>
+    <p id="error-message"></p>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const errorMessage = params.get('msg');
+        if (errorMessage) {
+            document.getElementById('error-message').textContent = errorMessage;
+        }
+    </script>
+</body>
+</html>
+
