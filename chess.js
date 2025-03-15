@@ -198,7 +198,6 @@ class ChessGame {
         }
     }
 
-    // Rest of your methods...
     getFigureImage(cellValue) {
         const figureImages = {
             101: '101.png', 102: '102.png', 103: '103.png', 104: '104.png', 105: '105.png', 106: '106.png', // White pieces
