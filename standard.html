@@ -60,15 +60,15 @@
             </div>
         </div>
     </div>
-
     <script src="chess.js"></script>
     <script src="2p8x8chess.js"></script>
+    <script src="./settings.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
         import { getDatabase, ref, get, onValue, update } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-database.js";
-        import {database} from './settings.js';
-        import {updateMoveHistoryDisplay, getSelectedPromotion, getSelectedOrientation, displayBoard} from './settings.js';
         // Game variables
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
         let myColor = 0;
         let playerNicks = [];
         let randomKey = '';
@@ -111,19 +111,19 @@
             }
             const game = createGamefromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", playerNicks);
         
-            game.displayBoard('normal', game);
+            displayBoard('normal', game);
             updateMoveHistoryDisplay(game);
         
             let firstSelectedButton = null;
             let firstSelectedPosition = null;
         
             //Updating the Board Orientation
-            document.querySelectorAll('input[name="orientation"]').forEach(radio => {radio.addEventListener('change', updateBoard);});
             const updateBoard = () => {
                 const orientation = getSelectedOrientation();
-                game.displayBoard(orientation, game);
+                displayBoard(orientation, game);
                 setupBoardClickHandlers();
             };
+            document.querySelectorAll('input[name="orientation"]').forEach(radio => {radio.addEventListener('change', updateBoard);});
         
             // Set up click handlers for the board
             const setupBoardClickHandlers = () => {
@@ -186,7 +186,7 @@
                             return;
                         }
                         const { fromPosition, toPosition } = snapshot.val();
-                        const promotion = getSelectedPromotion(); // You may want to define the promotion type or get it from the UI
+                        const promotion = getSelectedPromotion(); 
                         myColor = (myColor)
                         if (game.isValidMove(fromPosition, toPosition, promotion, turnColor)) {
                             game.doMove(fromPosition, toPosition, promotion, turnColor);

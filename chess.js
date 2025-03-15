@@ -13,7 +13,6 @@ class ChessGame {
         leftCastleAbilities = leftCastleAbilities || Array(playerNicks.length).fill([true]);
         pawnDirections = pawnDirections || Array(playerNicks.length).fill("up");
         
-    // Rest of the constructor...
 
         if(boardsize > 20 || boardsize < 4){
             throw new Error("Board size are [5;20]")
@@ -54,7 +53,7 @@ class ChessGame {
         if (!pawnDirections.every(dir => ['up', 'down', 'left', 'right'].includes(dir))) {
             throw new Error("Pawn directions must be 'up', 'down', 'left', or 'right'");
         }
-
+        this.history = history;
         this.board=board;
         this.boardsize = boardsize;
         this.players = playerNicks;
@@ -87,7 +86,7 @@ class ChessGame {
         if (promotion && !['q', 'r', 'b', 'n'].includes(promotion.toLowerCase())) {
             throw new Error("Invalid promotion piece. Must be 'q', 'r', 'b', or 'n'");
         }
-        console.log("Received king corrds in isValidMove", this.kingCoords)
+        //console.log("Received king corrds in isValidMove", this.kingCoords)
         // Convert chess notation to board coordinates
         const fromCoords = this.convertChessNotationToCoords(from);
         const toCoords = this.convertChessNotationToCoords(to);
@@ -591,9 +590,9 @@ class ChessGame {
     //console.log("after do king coord", this.kingCoords)
     // Update whose move it is
     this.whoseMove = (this.whoseMove + 1) % this.players.length;
-    this.isSomeoneMated();
-    this.isSomeonePated();
-    this.isGameFinished();
+    // this.isSomeoneMated();
+    // this.isSomeonePated();
+    //this.isGameFinished();
     }
 
     doRegularMove(fromCoords, toCoords) {
@@ -839,26 +838,44 @@ if ((absRowDiff === 1 && absColDiff === 1) && this.board[toCoords.row][toCoords.
 
     generateValidMoves(playerColor) {
     const validMoves = [];
-    for (coord1 = 'a'; coord1 < 'a'+this.boardsize; coord1++) {
-        for(coord2 = 1; coord2 < this.boardsize; coord2++) {
-            for (coord3 = 'a'; coord3 < 'a'+this.boardsize; coord3++) {
-                for(coord4 = 1; coord4 < this.boardsize; coord4++) {
-                    const from = coord1 + coord2;
-                    const to = coord3 + coord4;
-                    if (this.isValidMove(from, to, playerColor)) {
-                        validMoves.push({from, to});
+    const playerMinValue = (playerColor + 1) * 100;
+    const playerMaxValue = playerMinValue + 99;
+    for (let coord1 = 'a', coord1Int = 41-this.boardsize; coord1 < 'a'+this.boardsize; coord1++,coord1Int++) {
+        for(let coord2 = 1, coord2Int = 20; coord2 < this.boardsize; coord2++, coord2Int++) {
+            if (this.board[coord1Int][coord2Int] >= playerMinValue && this.board[coord1Int][coord2Int] <= playerMaxValue) {
+                for (let coord3 = 'a', coord3Int = 41-this.boardsize; coord3 < 'a'+this.boardsize; coord3++, coord3Int++) {
+                    for(let coord4 = 1, coord4Int = 20; coord4 < this.boardsize, coord4Int++;) {
+                        if (this.board[coord3Int][coord4Int] < playerMinValue || this.board[coord3Int][coord4Int] > playerMaxValue) {
+                            const from = coord1 + coord2;
+                            const to = coord3 + coord4;
+                            console.log(coord1+coord2, " ", coord3+coord4)
+                            if (this.isValidMove(from, to, playerColor)) {
+                                validMoves.push({from, to});
+                            }
+                        }
                     }
                 }
             }
+            // for (let coord3 = 'a'; coord3 < 'a'+this.boardsize; coord3++) {
+            //     for(let coord4 = 1; coord4 < this.boardsize; coord4++) {
+            //         console.log(from, to)
+            //         const from = coord1 + coord2;
+            //         const to = coord3 + coord4;
+            //         if (this.isValidMove(from, to, playerColor)) {
+            //             validMoves.push({from, to});
+            //         }
+            //     }
+            // }
         }
     }
+    console.log(validMoves )
     return validMoves;
     }
 
     isSomeonePated(){
         for (let playerInd = 0; playerInd < this.players.length; playerInd++) {
             if (this.isAlivePlayers[playerInd]) {
-                thisPlayersMoves = this.generateValidMoves(playerInd);
+                let thisPlayersMoves = this.generateValidMoves(playerInd);
                 if (thisPlayersMoves.length = 0) {
                     if (this.isCheckForMe(playerInd, this.kingCoords[playerInd], this.board) == false) {
                         this.isFinished = true;
@@ -872,7 +889,7 @@ if ((absRowDiff === 1 && absColDiff === 1) && this.board[toCoords.row][toCoords.
     isSomeoneMated(){
         for (let playerInd = 0; playerInd < this.players.length; playerInd++) {
             if (this.isAlivePlayers[playerInd]) {
-                thisPlayersMoves = this.generateValidMoves(playerInd);
+                let thisPlayersMoves = this.generateValidMoves(playerInd);
                 if (thisPlayersMoves.length = 0) {
                     if (this.isCheckForMe(playerInd, this.kingCoords[playerInd], this.board)) {
                         this.isAlivePlayers[playerInd] = false;
@@ -883,7 +900,7 @@ if ((absRowDiff === 1 && absColDiff === 1) && this.board[toCoords.row][toCoords.
     }
 
     isGameFinished(){
-        this.isSomeoneMated();
+        console.log(this.isAlivePlayers)
         let alivePlayersCount = 0;
         for (let playerInd = 0; playerInd < this.players.length; playerInd++) {
             if (this.isAlivePlayers[playerInd]) {

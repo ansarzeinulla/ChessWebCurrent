@@ -50,28 +50,17 @@ input:checked + .slider:before {
   transform: translateX(26px);
 }
   </style>
+  <script src="./settings.js"></script>
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
-    import { getDatabase, ref, get, update, onValue } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-database.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyCZFJw1_ig3Ctg6P8wWkX6CL3QiyEtAVZw",
-      authDomain: "shahmat-d555c.firebaseapp.com",
-      databaseURL: "https://shahmat-d555c-default-rtdb.firebaseio.com",
-      projectId: "shahmat-d555c",
-      storageBucket: "shahmat-d555c.firebasestorage.app",
-      messagingSenderId: "1007601901767",
-      appId: "1:1007601901767:web:1465687d739f20c2a0dee2"
-    };
-
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js';
+    import { getDatabase, ref, get, update, onValue } from 'https://www.gstatic.com/firebasejs/11.4.0/firebase-database.js';
     const app = initializeApp(firebaseConfig);
     const database = getDatabase(app);
-
     const urlParams = new URLSearchParams(window.location.search);
     const waitroomKey = urlParams.get('waitroomkey');
     const playerId = urlParams.get('playerid');
     const isOrganizer = urlParams.get('organizer');
-    const playerRandomKey = generateRandomKey();
+    const playerRandomKey = generate6RandomKey();
     console.log(playerRandomKey);
     var playerColor = 0;
     if (!waitroomKey || !playerId || !isOrganizer) {
@@ -162,14 +151,6 @@ input:checked + .slider:before {
       }
     });
 
-    function generateRandomKey() {
-      const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-      let result = '';
-      for (let i = 0; i < 6; i++) {
-        result += characters.charAt(Math.floor(Math.random() * characters.length));
-      }
-      return result;
-    }
   </script>
 </head>
 <body>

@@ -7,10 +7,8 @@ const firebaseConfig = {
     messagingSenderId: "1007601901767",
     appId: "1:1007601901767:web:1465687d739f20c2a0dee2"
 };
-const app = initializeApp(firebaseConfig);
-export const database = getDatabase(app);
-
-export const updateMoveHistoryDisplay = (game) => {
+window.firebaseConfig =firebaseConfig
+ const updateMoveHistoryDisplay = (game) => {
     const moveList = document.getElementById('move-list');
     moveList.innerHTML = '';
     if (!game.history) return;
@@ -33,17 +31,17 @@ export const updateMoveHistoryDisplay = (game) => {
     }
 };
 
-export const getSelectedPromotion = () => {
+ const getSelectedPromotion = () => {
     const selected = document.querySelector('input[name="promotion"]:checked');
     return selected ? selected.value : 'q';
 };
 
-export const getSelectedOrientation = () => {
+ const getSelectedOrientation = () => {
     const selected = document.querySelector('input[name="orientation"]:checked');
     return selected ? selected.value : 'normal';
 };
 
-export const displayBoard = (standing = 'normal', game) => {
+ const displayBoard = (standing = 'normal', game) => {
     const validStandings = ['normal', 'upside', 'right', 'left'];
     if (!validStandings.includes(standing)) {
         throw new Error("Standing must be 'normal', 'upside', 'right', or 'left'");
@@ -169,3 +167,18 @@ const getFigureImage = (cellValue) =>{
     };
     return figureImages[cellValue] || ''; // If no match, return an empty string
 };
+
+ const generate6RandomKey = () => {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let result = '';
+    for (let i = 0; i < 6; i++) {
+      result += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return result;
+};
+
+window.generate6RandomKey = generate6RandomKey;
+window.getSelectedPromotion = getSelectedPromotion;
+window.getSelectedOrientation = getSelectedOrientation;
+window.displayBoard = displayBoard;
+window.updateMoveHistoryDisplay = updateMoveHistoryDisplay;

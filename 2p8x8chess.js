@@ -68,5 +68,8 @@ function createGamefromFEN(fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w 
     );
 }
 
+
+
+
 // Make the function globally available
 window.createGamefromFEN = createGamefromFEN;

@@ -50,8 +50,7 @@
       color: #999;
     }
   </style>
-</head>
-<body>
+</head><body>
   <h1>Choose Play Type</h1>
   <input type="radio" id="standard" name="playType" value="standard" checked>
   <label for="standard">Standard</label>
@@ -63,6 +62,13 @@
   <input type="text" id="codeInput" placeholder="Enter 6 character code">
   <button onclick="joinWaitroom()">Join</button>
 
+  <!-- Firebase v8 -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+  <!-- settings.js -->
+  <script src="settings.js"></script>
+
   <script>
     function handlePlayType() {
       const selectedOption = document.querySelector('input[name="playType"]:checked').value;
@@ -70,19 +76,10 @@
       if (selectedOption === 'another') {
         alert('ONLY STANDARD IS ENABLED NOW');
       } else if (selectedOption === 'standard') {
-        const waitroomKey = generateRandomKey();
-        const playerId = generateRandomKey();
+        const waitroomKey = generate6RandomKey();
+        const playerId = generate6RandomKey();
         window.location.href = `waitroom-standard.html?waitroomkey=${waitroomKey}&playerid=${playerId}&organizer=${true}`;
       }
-    }
-
-    function generateRandomKey() {
-      const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-      let result = '';
-      for (let i = 0; i < 6; i++) {
-        result += characters.charAt(Math.floor(Math.random() * characters.length));
-      }
-      return result;
     }
 
     function joinWaitroom() {
@@ -90,7 +87,7 @@
       const waitroomKeyPattern = /^[A-Z]{6}$/;
 
       if (waitroomKeyPattern.test(waitroomKey)) {
-        const playerId = generateRandomKey();
+        const playerId = generate6RandomKey();
         window.location.href = `waitroom-standard.html?waitroomkey=${waitroomKey}&playerid=${playerId}&organizer=${false}`;
       } else {
         alert('Invalid code! Please enter exactly 6 capital English letters.');
