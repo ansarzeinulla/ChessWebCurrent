@@ -5,72 +5,54 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chess Game</title>
     <link rel="stylesheet" href="style.css">
-
 </head>
 <body>
     <h1>Chess Game</h1>
-    
     <div class="game-container">
-        <!-- Chess board on the left -->
         <div class="board-wrapper">
             <div id="board"></div>
         </div>
-        
-        <!-- Side panel on the right -->
         <div id="side-panel">
-
-
             <div class="board-orientation">
                 <h3>Board Orientation</h3>
-                
                 <div class="radio-option">
                     <input type="radio" id="normal" name="orientation" value="normal" checked>
                     <label for="normal">Normal</label>
                 </div>
-                
                 <div class="radio-option">
                     <input type="radio" id="upside" name="orientation" value="upside">
                     <label for="upside">Upside Down</label>
                 </div>
-                
                 <div class="radio-option">
                     <input type="radio" id="right" name="orientation" value="right">
                     <label for="right">Right</label>
                 </div>
-                
                 <div class="radio-option">
                     <input type="radio" id="left" name="orientation" value="left">
                     <label for="left">Left</label>
                 </div>
             </div>
             
-            <!-- Promotion piece options -->
             <div class="promotion-options">
                 <h3>Promotion Piece</h3>
-                
                 <div class="radio-option">
                     <input type="radio" id="queen" name="promotion" value="q" checked>
                     <label for="queen">Queen</label>
                 </div>
-                
                 <div class="radio-option">
                     <input type="radio" id="rook" name="promotion" value="r">
                     <label for="rook">Rook</label>
                 </div>
-                
                 <div class="radio-option">
                     <input type="radio" id="bishop" name="promotion" value="b">
                     <label for="bishop">Bishop</label>
                 </div>
-                
                 <div class="radio-option">
                     <input type="radio" id="knight" name="promotion" value="n">
                     <label for="knight">Knight</label>
                 </div>
             </div>
-             
-
-            <!-- Add this to your side panel, after the selected-squares div -->
+            
             <div class="move-history">
                 <h3>Move History</h3>
                 <div id="history-container">
@@ -86,8 +68,6 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
         import { getDatabase, ref, get, onValue, update } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-database.js";
-        
-        // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyCZFJw1_ig3Ctg6P8wWkX6CL3QiyEtAVZw",
             authDomain: "shahmat-d555c.firebaseapp.com",
@@ -97,8 +77,6 @@
             messagingSenderId: "1007601901767",
             appId: "1:1007601901767:web:1465687d739f20c2a0dee2"
         };
-        
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
         
@@ -286,9 +264,6 @@
                             return;
                         }
                         const { fromPosition, toPosition } = snapshot.val();
-                        //alert(`From Position: ${fromPosition}\nTo Position: ${toPosition}`);
-
-                        // Perform the move in the game
                         const promotion = getSelectedPromotion(); // You may want to define the promotion type or get it from the UI
                         myColor = (myColor)
                         if (game.isValidMove(fromPosition, toPosition, promotion, turnColor)) {
@@ -314,9 +289,6 @@
             setupBoardClickHandlers();
             waitForDatabaseUpdate();
         });
-
-        
         </script>
-        
 </body>
 </html>

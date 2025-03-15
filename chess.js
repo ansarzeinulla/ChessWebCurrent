@@ -723,6 +723,7 @@ class ChessGame {
     this.whoseMove = (this.whoseMove + 1) % this.players.length;
     this.isSomeoneMated();
     this.isSomeonePated();
+    this.isGameFinished();
     }
 
     doRegularMove(fromCoords, toCoords) {
@@ -1008,6 +1009,19 @@ if ((absRowDiff === 1 && absColDiff === 1) && this.board[toCoords.row][toCoords.
                     }
                 }
             }
+        }
+    }
+
+    isGameFinished(){
+        this.isSomeoneMated();
+        let alivePlayersCount = 0;
+        for (let playerInd = 0; playerInd < this.players.length; playerInd++) {
+            if (this.isAlivePlayers[playerInd]) {
+                alivePlayersCount++;
+            }
+        }
+        if (alivePlayersCount <= 1) {
+            this.isFinished = true;
         }
     }
 }
